@@ -1,0 +1,25 @@
+{
+  "name": "@saas/db",
+  "version": "0.1.0",
+  "private": true,
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "dev": "prisma generate --schema prisma/schema.prisma && tsc -w -p tsconfig.json",
+    "build": "prisma generate --schema prisma/schema.prisma && tsc -p tsconfig.json",
+    "lint": "eslint src prisma/seed.ts --ext .ts --max-warnings=0",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "db:migrate": "prisma migrate dev --schema prisma/schema.prisma",
+    "db:seed": "tsx prisma/seed.ts",
+    "db:studio": "prisma studio --schema prisma/schema.prisma",
+    "postinstall": "prisma generate --schema prisma/schema.prisma"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.21.1"
+  },
+  "devDependencies": {
+    "prisma": "^5.21.1",
+    "tsx": "^4.19.1"
+  }
+}

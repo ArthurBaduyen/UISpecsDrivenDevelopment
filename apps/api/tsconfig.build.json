@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "baseUrl": ".",
+    "paths": {
+      "@saas/db": ["../../packages/db/dist/index.d.ts"],
+      "@saas/validation": ["../../packages/validation/dist/index.d.ts"]
+    }
+  },
+  "exclude": ["test", "**/*.spec.ts"]
+}

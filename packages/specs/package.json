@@ -1,0 +1,11 @@
+{
+  "name": "@saas/specs",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "lint": "prettier --check '*.md' '*.yaml'",
+    "typecheck": "echo 'No typecheck for specs'",
+    "test": "echo 'No tests for specs'",
+    "build": "echo 'No build for specs'"
+  }
+}
