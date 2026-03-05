@@ -22,7 +22,10 @@ export class CandidatesService {
           }
         : {}),
       ...(input.status ? { status: input.status } : {}),
-      ...(input.role ? { role: { contains: input.role, mode: 'insensitive' as const } } : {})
+      ...(input.role ? { role: { contains: input.role, mode: 'insensitive' as const } } : {}),
+      ...(input.available
+        ? { available: { contains: input.available, mode: 'insensitive' as const } }
+        : {})
     };
 
     const total = await prisma.candidate.count({ where });

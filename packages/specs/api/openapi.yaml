@@ -101,6 +101,14 @@ paths:
         '200':
           description: logged out
 
+  /dashboard/summary:
+    get:
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: dashboard summary metrics
+
   /candidates/query:
     get:
       security:
@@ -114,6 +122,9 @@ paths:
           schema: { type: string }
         - in: query
           name: role
+          schema: { type: string }
+        - in: query
+          name: available
           schema: { type: string }
         - in: query
           name: page

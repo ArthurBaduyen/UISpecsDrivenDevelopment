@@ -27,3 +27,10 @@
 - Decision: First vertical slice implements the smallest meaningful core flow: `Login -> Admin shell -> Candidates CRUD (+ candidate invite-link creation endpoint)`.
 - Why: Satisfies incremental runnable delivery and de-risks architecture before broader modules.
 - Follow-up: Implement remaining entities/modules in subsequent slices per `migration-plan.md`.
+
+## 2026-03-05: Dashboard dependency gap vs available domain modules
+
+- Conflict: Dashboard spec references `skills` and `shared profiles` data sources, but those entities/endpoints are not yet implemented in this monorepo slice.
+- Decision: Implement dashboard summary from available canonical data (`Candidate`) with deep links and role/completeness analytics, and defer skills/shared-profile charts to a later slice.
+- Why: Preserves UX intent for admin operational visibility while keeping deliverables incremental and runnable.
+- Follow-up: Add `skills` and `shared profiles` domain + API modules, then expand `/api/dashboard/summary` and dashboard UI sections.

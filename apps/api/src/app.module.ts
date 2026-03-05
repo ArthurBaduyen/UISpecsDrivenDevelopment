@@ -4,6 +4,8 @@ import { AuthService } from './auth/auth.service';
 import { SessionAuthGuard } from './auth/session-auth.guard';
 import { CandidatesController } from './candidates/candidates.controller';
 import { CandidatesService } from './candidates/candidates.service';
+import { DashboardController } from './dashboard/dashboard.controller';
+import { DashboardService } from './dashboard/dashboard.service';
 import { HealthController } from './health/health.controller';
 import { ProjectsController } from './projects/projects.controller';
 import { ProjectsService } from './projects/projects.service';
@@ -14,10 +16,11 @@ import { StripeController } from './stripe/stripe.controller';
   controllers: [
     HealthController,
     AuthController,
+    DashboardController,
     CandidatesController,
     ProjectsController,
     StripeController
   ],
-  providers: [AuthService, SessionAuthGuard, CandidatesService, ProjectsService]
+  providers: [AuthService, SessionAuthGuard, DashboardService, CandidatesService, ProjectsService]
 })
 export class AppModule {}

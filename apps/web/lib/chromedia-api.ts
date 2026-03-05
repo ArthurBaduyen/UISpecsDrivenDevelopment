@@ -28,6 +28,40 @@ export type CandidateQueryResponse = {
   totalPages: number;
 };
 
+export type CandidateInviteLinkResponse = {
+  id: string;
+  token: string;
+  expiresAt: string;
+};
+
+export type DashboardSummaryResponse = {
+  kpis: {
+    total: number;
+    active: number;
+    pending: number;
+    inactive: number;
+  };
+  weekOverWeek: {
+    current: number;
+    previous: number;
+    delta: number;
+  };
+  funnel: {
+    sourced: number;
+    active: number;
+    pending: number;
+  };
+  profileCompleteness: {
+    complete: number;
+    partial: number;
+    rate: number;
+  };
+  roleDemandVsAvailability: Array<{
+    role: string;
+    count: number;
+  }>;
+};
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
 function getErrorMessage(payload: unknown, fallback: string): string {

@@ -57,6 +57,7 @@ export const candidateQuerySchema = z.object({
   q: z.string().optional(),
   status: candidateStatusSchema.optional(),
   role: z.string().optional(),
+  available: z.string().optional(),
   sortBy: z
     .enum(['name', 'role', 'technologies', 'expectedSalary', 'available', 'status', 'createdAt'])
     .default('createdAt'),

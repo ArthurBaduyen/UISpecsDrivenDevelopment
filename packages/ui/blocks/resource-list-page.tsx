@@ -23,6 +23,8 @@ type ResourceListPageProps<T extends Record<string, unknown>> = {
   onDelete?: (row: T) => void;
   onRetry?: () => void;
   onSearch?: (query: string) => void;
+  searchValue?: string;
+  searchPlaceholder?: string;
   onFilter?: ReactNode;
   renderForm?: () => ReactNode;
   getRowId?: (row: T, index: number) => string;
@@ -42,6 +44,8 @@ export function ResourceListPage<T extends Record<string, unknown>>({
   onDelete,
   onRetry,
   onSearch,
+  searchValue,
+  searchPlaceholder = 'Search...',
   onFilter,
   renderForm,
   getRowId
@@ -77,8 +81,9 @@ export function ResourceListPage<T extends Record<string, unknown>>({
             {onSearch ? (
               <input
                 type="search"
-                placeholder="Search..."
+                placeholder={searchPlaceholder}
                 className="h-9 w-56 rounded-md border border-slate-200 px-3 text-sm dark:border-slate-700 dark:bg-slate-900"
+                value={searchValue}
                 onChange={(event) => onSearch(event.target.value)}
               />
             ) : null}
