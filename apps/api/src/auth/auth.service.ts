@@ -1,4 +1,5 @@
 import {
+  HttpException,
   InternalServerErrorException,
   Injectable,
   ServiceUnavailableException,
@@ -13,7 +14,7 @@ const SESSION_TTL_MS = 1000 * 60 * 60 * 8;
 
 function rethrowDatabaseError(error: unknown): never {
   if (error instanceof Error) {
-    console.error('[auth] error:', error.message);
+    console.error('[auth] error:', error);
   }
 
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -36,31 +37,28 @@ function rethrowDatabaseError(error: unknown): never {
     );
   }
 
-  throw new InternalServerErrorException('Authentication service error');
+  throw new InternalServerErrorException(
+    error instanceof Error ? `Authentication service error: ${error.message}` : 'Authentication service error'
+  );
 }
 
 @Injectable()
 export class AuthService {
   async login(email: string, password: string, response: Response) {
-    let user: Awaited<ReturnType<typeof prisma.user.findUnique>>;
     try {
-      user = await prisma.user.findUnique({ where: { email } });
-    } catch (error) {
-      rethrowDatabaseError(error);
-    }
+      const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!user || !user.isEnabled || user.passwordHash !== password) {
-      throw new UnauthorizedException('Invalid email or password');
-    }
+      if (!user || !user.isEnabled || user.passwordHash !== password) {
+        throw new UnauthorizedException('Invalid email or password');
+      }
 
-    if (user.role !== UserRole.ADMIN && user.role !== UserRole.SUPER_ADMIN) {
-      throw new UnauthorizedException('This account cannot access admin login');
-    }
+      if (user.role !== UserRole.ADMIN && user.role !== UserRole.SUPER_ADMIN) {
+        throw new UnauthorizedException('This account cannot access admin login');
+      }
 
-    const token = randomUUID();
-    const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
+      const token = randomUUID();
+      const expiresAt = new Date(Date.now() + SESSION_TTL_MS);
 
-    try {
       await prisma.authSession.create({
         data: {
           tokenHash: token,
@@ -75,27 +73,30 @@ export class AuthService {
         where: { id: user.id },
         data: { lastLoginAt: new Date() }
       });
+
+      response.cookie(ACCESS_COOKIE_NAME, token, {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: false,
+        path: '/',
+        expires: expiresAt
+      });
+
+      return {
+        user: {
+          id: user.id,
+          email: user.email,
+          username: user.username,
+          name: user.name,
+          role: user.role
+        }
+      };
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       rethrowDatabaseError(error);
     }
-
-    response.cookie(ACCESS_COOKIE_NAME, token, {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: false,
-      path: '/',
-      expires: expiresAt
-    });
-
-    return {
-      user: {
-        id: user.id,
-        email: user.email,
-        username: user.username,
-        name: user.name,
-        role: user.role
-      }
-    };
   }
 
   async getSession(token?: string) {
