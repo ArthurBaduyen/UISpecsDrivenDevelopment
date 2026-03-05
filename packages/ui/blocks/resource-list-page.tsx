@@ -1,6 +1,6 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import type { FormEventHandler, ReactNode } from 'react';
 import { Button } from '../primitives/button';
 import { PageHeader } from '../patterns/page-header';
 import { Section } from '../patterns/section';
@@ -18,6 +18,7 @@ type ResourceListPageProps<T extends Record<string, unknown>> = {
   loading?: boolean;
   error?: string | null;
   onCreate?: () => void;
+  onCreateSubmit?: FormEventHandler<HTMLFormElement>;
   onUpdate?: (row: T) => void;
   onDelete?: (row: T) => void;
   onRetry?: () => void;
@@ -36,6 +37,7 @@ export function ResourceListPage<T extends Record<string, unknown>>({
   loading,
   error,
   onCreate,
+  onCreateSubmit,
   onUpdate,
   onDelete,
   onRetry,
@@ -56,7 +58,11 @@ export function ResourceListPage<T extends Record<string, unknown>>({
         description={description}
         actions={
           renderForm ? (
-            <ResourceFormDialog trigger={createTrigger} title={createLabel} onSubmit={(event) => event.preventDefault()}>
+            <ResourceFormDialog
+              trigger={createTrigger}
+              title={createLabel}
+              onSubmit={onCreateSubmit ?? ((event) => event.preventDefault())}
+            >
               {renderForm()}
             </ResourceFormDialog>
           ) : (

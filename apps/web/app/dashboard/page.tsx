@@ -32,7 +32,10 @@ export default async function DashboardPage() {
           </div>
           <nav className="space-y-2 text-sm">
             <p className="font-medium text-slate-900 dark:text-slate-100">Dashboard</p>
-            <Link href="/projects" className="block text-slate-500 hover:text-slate-900 dark:hover:text-slate-100">
+            <Link
+              href="/projects"
+              className="block text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+            >
               Projects
             </Link>
             <p className="text-slate-500">Members</p>
@@ -42,7 +45,9 @@ export default async function DashboardPage() {
       }
       topNav={
         <div className="flex items-center justify-between">
-          <p className="text-sm text-slate-600 dark:text-slate-300">Signed in as {session.user?.email}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-300">
+            Signed in as {session.user?.email}
+          </p>
           <Button variant="outline" size="sm">
             Switch Organization
           </Button>

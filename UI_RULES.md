@@ -45,7 +45,14 @@ import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ResourceFormDialog } from '@repo/ui/blocks/resource-form-dialog';
-import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@repo/ui/primitives/form';
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage
+} from '@repo/ui/primitives/form';
 import { Input } from '@repo/ui/primitives/input';
 
 const schema = z.object({ name: z.string().min(2) });

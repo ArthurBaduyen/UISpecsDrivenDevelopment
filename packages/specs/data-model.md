@@ -1,36 +1,20 @@
-# Data Model
+# Data Model (Normalized)
 
-## Entities
+Canonical DB schema is Prisma in `packages/db/prisma/schema.prisma`.
 
-### User
+Current vertical-slice entities:
 
-- `id`
-- `email`
-- `name`
-- timestamps
+- User
+- AuthSession
+- Candidate
+- CandidateInviteLink
 
-### Organization
+Supporting entities retained from starter scaffold:
 
-- `id`
-- `name`
-- `stripeCustomerId` (nullable)
-- `stripeSubscriptionId` (nullable)
-- `subscriptionStatus` (nullable)
-- timestamps
+- Organization
+- Membership
+- Project
 
-### Membership
+Detailed domain docs:
 
-- `id`
-- `userId`
-- `organizationId`
-- `role` (`OWNER` | `ADMIN` | `MEMBER`)
-- timestamps
-- unique on (`userId`, `organizationId`)
-
-### Project
-
-- `id`
-- `organizationId`
-- `name`
-- `description` (nullable)
-- timestamps
+- `packages/specs/domain/*.md`

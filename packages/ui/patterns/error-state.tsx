@@ -7,7 +7,12 @@ type ErrorStateProps = {
   retry?: ReactNode;
 };
 
-export function ErrorState({ title = 'Something went wrong', message, icon, retry }: ErrorStateProps) {
+export function ErrorState({
+  title = 'Something went wrong',
+  message,
+  icon,
+  retry
+}: ErrorStateProps) {
   return (
     <div className="rounded-lg border border-red-200 bg-red-50 p-6 dark:border-red-900 dark:bg-red-950/40">
       {icon ? <div className="mb-2 text-red-600">{icon}</div> : null}

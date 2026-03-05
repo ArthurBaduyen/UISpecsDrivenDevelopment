@@ -1,0 +1,185 @@
+openapi: 3.0.3
+info:
+  title: Chromedia Talent Intelligence API (Slice 1)
+  version: 0.1.0
+servers:
+  - url: http://localhost:4000/api
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: chromedia_access
+  schemas:
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    Candidate:
+      type: object
+      required:
+        [id, name, role, technologies, expectedSalary, available, status, createdAt, updatedAt]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+        technologies:
+          type: string
+        expectedSalary:
+          type: string
+        available:
+          type: string
+        status:
+          type: string
+          enum: [Active, Inactive, Pending]
+        email:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    CandidateQueryResponse:
+      type: object
+      required: [items, total, page, pageSize, totalPages]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Candidate'
+        total:
+          type: integer
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        totalPages:
+          type: integer
+paths:
+  /health:
+    get:
+      responses:
+        '200':
+          description: healthy
+
+  /auth/login:
+    post:
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInput'
+      responses:
+        '200':
+          description: login success
+        '401':
+          description: invalid credentials
+
+  /auth/session:
+    get:
+      responses:
+        '200':
+          description: active session or unauthenticated payload
+
+  /auth/logout:
+    post:
+      responses:
+        '200':
+          description: logged out
+
+  /candidates/query:
+    get:
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: status
+          schema: { type: string }
+        - in: query
+          name: role
+          schema: { type: string }
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1 }
+        - in: query
+          name: pageSize
+          schema: { type: integer, minimum: 1, maximum: 100 }
+        - in: query
+          name: sortBy
+          schema: { type: string }
+        - in: query
+          name: sortDir
+          schema: { type: string, enum: [asc, desc] }
+      responses:
+        '200':
+          description: candidate list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CandidateQueryResponse'
+
+  /candidates:
+    post:
+      security:
+        - cookieAuth: []
+      responses:
+        '201':
+          description: created
+
+  /candidates/{id}:
+    get:
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: found }
+        '404': { description: not found }
+    put:
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: updated }
+    delete:
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '204': { description: deleted }
+
+  /candidate-links:
+    post:
+      security:
+        - cookieAuth: []
+      responses:
+        '201':
+          description: invite token generated
