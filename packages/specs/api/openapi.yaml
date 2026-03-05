@@ -118,6 +118,50 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/SkillCategory'
+    SharedProfile:
+      type: object
+      required:
+        [
+          id,
+          shareToken,
+          candidateId,
+          candidateName,
+          candidateRole,
+          sharedWithName,
+          sharedWithEmail,
+          rateLabel,
+          expirationDate,
+          sharedAt,
+          accessCount,
+          status
+        ]
+      properties:
+        id: { type: string }
+        shareToken: { type: string }
+        candidateId: { type: string }
+        candidateName: { type: string }
+        candidateRole: { type: string }
+        sharedWithName: { type: string }
+        sharedWithEmail: { type: string, format: email }
+        rateLabel: { type: string }
+        expirationDate: { type: string, format: date-time }
+        sharedAt: { type: string, format: date-time }
+        revokedAt: { type: string, format: date-time, nullable: true }
+        accessCount: { type: integer }
+        lastAccessedAt: { type: string, format: date-time, nullable: true }
+        status: { type: string, enum: [Active, Expired, Revoked] }
+    SharedProfileQueryResponse:
+      type: object
+      required: [items, total, page, pageSize, totalPages]
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/SharedProfile'
+        total: { type: integer }
+        page: { type: integer }
+        pageSize: { type: integer }
+        totalPages: { type: integer }
 paths:
   /health:
     get:
@@ -298,3 +342,113 @@ paths:
       responses:
         '200':
           description: scoped taxonomy list
+
+  /shared-profiles:
+    get:
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: shared profiles list
+    post:
+      security:
+        - cookieAuth: []
+      responses:
+        '201':
+          description: shared profile created
+
+  /shared-profiles/query:
+    get:
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: status
+          schema: { type: string, enum: [Active, Expired, Revoked] }
+        - in: query
+          name: sortBy
+          schema:
+            {
+              type: string,
+              enum:
+                [
+                  candidateName,
+                  sharedWithName,
+                  rateLabel,
+                  expirationDate,
+                  accessCount,
+                  sharedAt,
+                  updatedAt
+                ]
+            }
+        - in: query
+          name: sortDir
+          schema: { type: string, enum: [asc, desc] }
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1 }
+        - in: query
+          name: pageSize
+          schema: { type: integer, minimum: 1, maximum: 100 }
+      responses:
+        '200':
+          description: paginated shared profiles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SharedProfileQueryResponse'
+
+  /shared-profiles/{id}:
+    put:
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: shared profile updated
+
+  /shared-profiles/{id}/revoke:
+    post:
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: shared profile revoked
+
+  /public-shares/{token}:
+    get:
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: public share metadata
+        '404':
+          description: invalid or unavailable token
+
+  /public-shares/{token}/candidate:
+    get:
+      parameters:
+        - in: path
+          name: token
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: public candidate payload
+        '404':
+          description: invalid or unavailable token

@@ -23,7 +23,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             <Link href="/admin/skills" className="block hover:text-slate-900">
               Skills
             </Link>
-            <span className="block opacity-60">Shared Profiles</span>
+            <Link href="/admin/shared-profiles" className="block hover:text-slate-900">
+              Shared Profiles
+            </Link>
             <span className="block opacity-60">QA Test Cases</span>
             <span className="block opacity-60">Settings</span>
           </nav>

@@ -127,6 +127,48 @@ export const skillsQuerySchema = z
     }
   });
 
+export const sharedProfileStatusSchema = z.enum(['Active', 'Expired', 'Revoked']);
+
+export const createSharedProfileSchema = z.object({
+  candidateId: z.string().min(1),
+  sharedWithName: z.string().min(1),
+  sharedWithEmail: z.string().email(),
+  rateLabel: z.string().min(1),
+  expirationDate: z.string().datetime()
+});
+
+export const updateSharedProfileSchema = z
+  .object({
+    rateLabel: z.string().min(1).optional(),
+    expirationDate: z.string().datetime().optional()
+  })
+  .refine((data) => Object.keys(data).length > 0, {
+    message: 'At least one field must be provided'
+  });
+
+export const sharedProfileIdParamSchema = z.object({
+  id: z.string().min(1)
+});
+
+export const sharedProfilesQuerySchema = z.object({
+  q: z.string().optional(),
+  status: sharedProfileStatusSchema.optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(10),
+  sortBy: z
+    .enum([
+      'candidateName',
+      'sharedWithName',
+      'rateLabel',
+      'expirationDate',
+      'accessCount',
+      'sharedAt',
+      'updatedAt'
+    ])
+    .default('sharedAt'),
+  sortDir: z.enum(['asc', 'desc']).default('desc')
+});
+
 export type CreateProjectInput = z.infer<typeof createProjectSchema>;
 export type UpdateProjectInput = z.infer<typeof updateProjectSchema>;
 export type LoginInput = z.infer<typeof loginInputSchema>;
@@ -136,3 +178,6 @@ export type CandidateQueryInput = z.infer<typeof candidateQuerySchema>;
 export type CreateCandidateInviteLinkInput = z.infer<typeof createCandidateInviteLinkSchema>;
 export type PutSkillsTaxonomyInput = z.infer<typeof putSkillsTaxonomySchema>;
 export type SkillsQueryInput = z.infer<typeof skillsQuerySchema>;
+export type CreateSharedProfileInput = z.infer<typeof createSharedProfileSchema>;
+export type UpdateSharedProfileInput = z.infer<typeof updateSharedProfileSchema>;
+export type SharedProfilesQueryInput = z.infer<typeof sharedProfilesQuerySchema>;

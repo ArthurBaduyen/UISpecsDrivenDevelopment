@@ -9,6 +9,8 @@ import { DashboardService } from './dashboard/dashboard.service';
 import { HealthController } from './health/health.controller';
 import { ProjectsController } from './projects/projects.controller';
 import { ProjectsService } from './projects/projects.service';
+import { SharedProfilesController } from './shared-profiles/shared-profiles.controller';
+import { SharedProfilesService } from './shared-profiles/shared-profiles.service';
 import { SkillsController } from './skills/skills.controller';
 import { SkillsService } from './skills/skills.service';
 import { StripeController } from './stripe/stripe.controller';
@@ -21,6 +23,7 @@ import { StripeController } from './stripe/stripe.controller';
     DashboardController,
     CandidatesController,
     ProjectsController,
+    SharedProfilesController,
     SkillsController,
     StripeController
   ],
@@ -30,6 +33,7 @@ import { StripeController } from './stripe/stripe.controller';
     DashboardService,
     CandidatesService,
     ProjectsService,
+    SharedProfilesService,
     SkillsService
   ]
 })

@@ -41,3 +41,10 @@
 - Decision: Implement `PUT /api/skills` as canonical full-state replace (taxonomy snapshot), plus query helpers (`GET /api/skills/query`) for table scopes.
 - Why: Matches spec behavior/UX and keeps future client-side optimistic editing straightforward.
 - Follow-up: Add audit history/versioning for taxonomy updates in a later slice.
+
+## 2026-03-05: Shared profile history dependency
+
+- Conflict: Shared profile page spec expects an audit-history modal sourced from `/api/audit-logs`, but the audit module is not implemented in current slices.
+- Decision: Implement core shared-profile workflows first (query/create/adjust/revoke/copy/public token read) and defer history modal content until audit logs are added.
+- Why: Preserves core business flow and keeps this slice runnable without blocking on super-admin/audit domain.
+- Follow-up: When audit-log module lands, wire history modal data source and event timeline rendering.

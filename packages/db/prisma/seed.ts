@@ -166,6 +166,41 @@ async function main() {
     }
   }
 
+  const sharedProfileInput = {
+    shareToken: 'share_jane_seed',
+    candidateId: candidateA.id,
+    candidateName: candidateA.name,
+    candidateRole: candidateA.role,
+    sharedWithName: 'Ryan Client',
+    sharedWithEmail: 'ryan.client@example.com',
+    rateLabel: '$45/hr',
+    expirationDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 10),
+    sharedByUserId: admin.id
+  };
+
+  const existingSharedProfile = await prisma.sharedProfile.findUnique({
+    where: { shareToken: 'share_jane_seed' }
+  });
+
+  if (existingSharedProfile) {
+    await prisma.sharedProfile.update({
+      where: { id: existingSharedProfile.id },
+      data: {
+        candidateId: sharedProfileInput.candidateId,
+        candidateName: sharedProfileInput.candidateName,
+        candidateRole: sharedProfileInput.candidateRole,
+        sharedWithName: sharedProfileInput.sharedWithName,
+        sharedWithEmail: sharedProfileInput.sharedWithEmail,
+        rateLabel: sharedProfileInput.rateLabel,
+        expirationDate: sharedProfileInput.expirationDate,
+        revokedAt: null,
+        sharedByUserId: sharedProfileInput.sharedByUserId
+      }
+    });
+  } else {
+    await prisma.sharedProfile.create({ data: sharedProfileInput });
+  }
+
   const seedTaxonomy = [
     {
       name: 'Frontend',

@@ -93,6 +93,35 @@ export type SkillsTaxonomyResponse = {
   categories: SkillCategoryItem[];
 };
 
+export type SharedProfileStatus = 'Active' | 'Expired' | 'Revoked';
+
+export type SharedProfile = {
+  id: string;
+  shareToken: string;
+  candidateId: string;
+  candidateName: string;
+  candidateRole: string;
+  sharedWithName: string;
+  sharedWithEmail: string;
+  rateLabel: string;
+  expirationDate: string;
+  sharedAt: string;
+  revokedAt?: string | null;
+  accessCount: number;
+  lastAccessedAt?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  status: SharedProfileStatus;
+};
+
+export type SharedProfilesQueryResponse = {
+  items: SharedProfile[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+};
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
 function getErrorMessage(payload: unknown, fallback: string): string {

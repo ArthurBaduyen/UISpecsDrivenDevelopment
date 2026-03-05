@@ -39,6 +39,7 @@ model User {
   updatedAt    DateTime     @updatedAt
   memberships  Membership[]
   sessions     AuthSession[]
+  sharedProfilesCreated SharedProfile[] @relation("SharedProfileSharedByUser")
 }
 
 model AuthSession {
@@ -69,10 +70,38 @@ model Candidate {
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
   inviteLinks     CandidateInviteLink[]
+  sharedProfiles  SharedProfile[]
 
   @@index([name])
   @@index([role])
   @@index([status])
+}
+
+model SharedProfile {
+  id             String    @id @default(cuid())
+  shareToken     String    @unique
+  candidateId    String
+  candidateName  String
+  candidateRole  String
+  sharedWithName String
+  sharedWithEmail String
+  rateLabel      String
+  expirationDate DateTime
+  sharedAt       DateTime  @default(now())
+  revokedAt      DateTime?
+  accessCount    Int       @default(0)
+  lastAccessedAt DateTime?
+  sharedByUserId String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  candidate      Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  sharedByUser   User?     @relation("SharedProfileSharedByUser", fields: [sharedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([candidateId])
+  @@index([sharedWithEmail])
+  @@index([expirationDate])
+  @@index([revokedAt])
 }
 
 model CandidateInviteLink {
