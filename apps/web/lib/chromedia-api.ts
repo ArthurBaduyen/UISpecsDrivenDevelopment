@@ -30,6 +30,22 @@ export type CandidateQueryResponse = {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
+function getErrorMessage(payload: unknown, fallback: string): string {
+  if (typeof payload === 'object' && payload !== null && 'message' in payload) {
+    const message = (payload as { message?: unknown }).message;
+    if (typeof message === 'string') {
+      return message;
+    }
+    if (Array.isArray(message)) {
+      return message.map((item) => String(item)).join(', ');
+    }
+    if (message && typeof message === 'object') {
+      return JSON.stringify(message);
+    }
+  }
+  return fallback;
+}
+
 export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(`${API_URL}/api${path}`, {
     ...init,
@@ -42,10 +58,8 @@ export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> 
   });
 
   if (!response.ok) {
-    const payload = (await response.json().catch(() => ({ message: 'Request failed' }))) as {
-      message?: string;
-    };
-    throw new Error(payload.message ?? 'Request failed');
+    const payload = await response.json().catch(() => ({}));
+    throw new Error(getErrorMessage(payload, 'Request failed'));
   }
 
   if (response.status === 204) {

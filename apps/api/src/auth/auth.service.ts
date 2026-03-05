@@ -10,9 +10,12 @@ import { randomUUID } from 'node:crypto';
 
 const ACCESS_COOKIE_NAME = 'chromedia_access';
 const SESSION_TTL_MS = 1000 * 60 * 60 * 8;
-type SessionWithUser = Prisma.AuthSessionGetPayload<{ include: { user: true } }>;
 
 function rethrowDatabaseError(error: unknown): never {
+  if (error instanceof Error) {
+    console.error('[auth] error:', error.message);
+  }
+
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === 'P2021' || error.code === 'P2022') {
       throw new ServiceUnavailableException(
@@ -24,6 +27,12 @@ function rethrowDatabaseError(error: unknown): never {
   if (error instanceof Prisma.PrismaClientInitializationError) {
     throw new ServiceUnavailableException(
       'Database is unavailable. Check DATABASE_URL and Postgres container.'
+    );
+  }
+
+  if (error instanceof Prisma.PrismaClientUnknownRequestError) {
+    throw new ServiceUnavailableException(
+      'Authentication data is inconsistent. Re-run pnpm db:migrate and pnpm db:seed.'
     );
   }
 
@@ -94,39 +103,35 @@ export class AuthService {
       return { authenticated: false };
     }
 
-    let session: SessionWithUser | null;
     try {
-      session = await prisma.authSession.findUnique({
+      const session = await prisma.authSession.findUnique({
         where: { tokenHash: token },
         include: { user: true }
       });
-    } catch (error) {
-      rethrowDatabaseError(error);
-    }
 
-    if (!session || session.revokedAt || session.expiresAt < new Date()) {
-      return { authenticated: false };
-    }
+      if (!session || session.revokedAt || session.expiresAt < new Date()) {
+        return { authenticated: false };
+      }
 
-    try {
       await prisma.authSession.update({
         where: { id: session.id },
         data: { lastSeenAt: new Date() }
       });
-    } catch (error) {
-      rethrowDatabaseError(error);
-    }
 
-    return {
-      authenticated: true,
-      user: {
-        id: session.user.id,
-        email: session.user.email,
-        username: session.user.username,
-        name: session.user.name,
-        role: session.user.role
-      }
-    };
+      return {
+        authenticated: true,
+        user: {
+          id: session.user.id,
+          email: session.user.email,
+          username: session.user.username,
+          name: session.user.name,
+          role: session.user.role
+        }
+      };
+    } catch (error) {
+      console.error('[auth] getSession failed; returning unauthenticated', error);
+      return { authenticated: false };
+    }
   }
 
   async logout(token: string | undefined, response: Response) {
@@ -156,20 +161,20 @@ export class AuthService {
       return null;
     }
 
-    let session: SessionWithUser | null;
     try {
-      session = await prisma.authSession.findUnique({
+      const session = await prisma.authSession.findUnique({
         where: { tokenHash: token },
         include: { user: true }
       });
-    } catch (error) {
-      rethrowDatabaseError(error);
-    }
 
-    if (!session || session.revokedAt || session.expiresAt < new Date()) {
+      if (!session || session.revokedAt || session.expiresAt < new Date()) {
+        return null;
+      }
+
+      return session.user;
+    } catch (error) {
+      console.error('[auth] resolveUserFromToken failed', error);
       return null;
     }
-
-    return session.user;
   }
 }

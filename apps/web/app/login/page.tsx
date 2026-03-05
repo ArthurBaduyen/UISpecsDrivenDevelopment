@@ -15,6 +15,22 @@ import { getSession } from '../../lib/chromedia-api';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
+function getErrorMessage(payload: unknown, fallback: string): string {
+  if (typeof payload === 'object' && payload !== null && 'message' in payload) {
+    const message = (payload as { message?: unknown }).message;
+    if (typeof message === 'string') {
+      return message;
+    }
+    if (Array.isArray(message)) {
+      return message.map((item) => String(item)).join(', ');
+    }
+    if (message && typeof message === 'object') {
+      return JSON.stringify(message);
+    }
+  }
+  return fallback;
+}
+
 function toHumanError(error: unknown): string {
   if (error instanceof TypeError) {
     return `Cannot reach API at ${API_URL}. Start the backend server and try again.`;
@@ -62,12 +78,8 @@ export default function LoginPage() {
       });
 
       if (!response.ok) {
-        const payload = (await response
-          .json()
-          .catch(() => ({ message: 'Invalid credentials' }))) as {
-          message?: string;
-        };
-        throw new Error(payload.message ?? 'Invalid credentials');
+        const payload = await response.json().catch(() => ({}));
+        throw new Error(getErrorMessage(payload, 'Invalid credentials'));
       }
 
       router.push(from);
