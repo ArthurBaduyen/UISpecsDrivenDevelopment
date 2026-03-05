@@ -4,6 +4,7 @@ import cookieParser from 'cookie-parser';
 import { existsSync } from 'node:fs';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { AllExceptionsFilter } from './common/all-exceptions.filter';
 import { AppModule } from './app.module';
 
 function loadEnvFile(path: string) {
@@ -53,6 +54,7 @@ async function bootstrap() {
   app.enableCors({ origin: true, credentials: true });
   app.use(cookieParser());
   app.setGlobalPrefix('api');
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   const port = Number(process.env.PORT ?? 4000);
   await app.listen(port);
