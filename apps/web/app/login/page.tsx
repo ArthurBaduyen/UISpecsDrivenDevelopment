@@ -15,6 +15,16 @@ import { getSession } from '../../lib/chromedia-api';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
+function toHumanError(error: unknown): string {
+  if (error instanceof TypeError) {
+    return `Cannot reach API at ${API_URL}. Start the backend server and try again.`;
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return 'Login failed';
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const [from, setFrom] = useState('/admin/dashboard');
@@ -63,7 +73,7 @@ export default function LoginPage() {
       router.push(from);
       router.refresh();
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : 'Login failed');
+      setError(toHumanError(submitError));
     } finally {
       setLoading(false);
     }
