@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  Inject,
   Param,
   Post,
   Put,
@@ -24,7 +25,7 @@ import { CandidatesService } from './candidates.service';
 @Controller()
 @UseGuards(SessionAuthGuard)
 export class CandidatesController {
-  constructor(private readonly candidatesService: CandidatesService) {}
+  constructor(@Inject(CandidatesService) private readonly candidatesService: CandidatesService) {}
 
   @Get('candidates')
   async listCandidates() {

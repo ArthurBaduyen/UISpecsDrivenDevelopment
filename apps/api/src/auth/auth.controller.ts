@@ -1,11 +1,11 @@
-import { BadRequestException, Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Inject, Post, Req, Res } from '@nestjs/common';
 import { loginInputSchema } from '@saas/validation';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(@Inject(AuthService) private readonly authService: AuthService) {}
 
   @Post('login')
   async login(@Body() body: unknown, @Res({ passthrough: true }) response: Response) {
