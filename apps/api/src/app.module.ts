@@ -9,6 +9,8 @@ import { DashboardService } from './dashboard/dashboard.service';
 import { HealthController } from './health/health.controller';
 import { ProjectsController } from './projects/projects.controller';
 import { ProjectsService } from './projects/projects.service';
+import { SkillsController } from './skills/skills.controller';
+import { SkillsService } from './skills/skills.service';
 import { StripeController } from './stripe/stripe.controller';
 
 @Module({
@@ -19,8 +21,16 @@ import { StripeController } from './stripe/stripe.controller';
     DashboardController,
     CandidatesController,
     ProjectsController,
+    SkillsController,
     StripeController
   ],
-  providers: [AuthService, SessionAuthGuard, DashboardService, CandidatesService, ProjectsService]
+  providers: [
+    AuthService,
+    SessionAuthGuard,
+    DashboardService,
+    CandidatesService,
+    ProjectsService,
+    SkillsService
+  ]
 })
 export class AppModule {}

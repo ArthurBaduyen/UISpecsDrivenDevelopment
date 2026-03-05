@@ -69,6 +69,64 @@ export const createCandidateInviteLinkSchema = z.object({
   expirationDate: z.string().datetime().optional()
 });
 
+export const capabilityLevels = [
+  'Entry Level',
+  'Mid Level',
+  'Senior Level',
+  'Senior Lead Level'
+] as const;
+
+export const skillCapabilitySchema = z.object({
+  'Entry Level': z.array(z.string().min(1)).default([]),
+  'Mid Level': z.array(z.string().min(1)).default([]),
+  'Senior Level': z.array(z.string().min(1)).default([]),
+  'Senior Lead Level': z.array(z.string().min(1)).default([])
+});
+
+export const skillInputSchema = z.object({
+  id: z.string().min(1).optional(),
+  name: z.string().min(1),
+  code: z.string().min(1).optional().nullable(),
+  description: z.string().optional().nullable(),
+  capabilities: skillCapabilitySchema,
+  displayOrder: z.number().int().min(0).default(0)
+});
+
+export const skillCategoryInputSchema = z.object({
+  id: z.string().min(1).optional(),
+  name: z.string().min(1),
+  slug: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
+  displayOrder: z.number().int().min(0).default(0),
+  skills: z.array(skillInputSchema).default([])
+});
+
+export const putSkillsTaxonomySchema = z.object({
+  taxonomyVersion: z.string().optional(),
+  updatedAt: z.string().datetime().optional(),
+  categories: z.array(skillCategoryInputSchema)
+});
+
+export const skillsQuerySchema = z
+  .object({
+    scope: z.enum(['categories', 'skills']).default('categories'),
+    categoryId: z.string().optional(),
+    q: z.string().optional(),
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(10),
+    sortBy: z.string().optional(),
+    sortDir: z.enum(['asc', 'desc']).default('asc')
+  })
+  .superRefine((value, ctx) => {
+    if (value.scope === 'skills' && !value.categoryId) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'categoryId is required when scope=skills',
+        path: ['categoryId']
+      });
+    }
+  });
+
 export type CreateProjectInput = z.infer<typeof createProjectSchema>;
 export type UpdateProjectInput = z.infer<typeof updateProjectSchema>;
 export type LoginInput = z.infer<typeof loginInputSchema>;
@@ -76,3 +134,5 @@ export type CreateCandidateInput = z.infer<typeof createCandidateSchema>;
 export type UpdateCandidateInput = z.infer<typeof updateCandidateSchema>;
 export type CandidateQueryInput = z.infer<typeof candidateQuerySchema>;
 export type CreateCandidateInviteLinkInput = z.infer<typeof createCandidateInviteLinkSchema>;
+export type PutSkillsTaxonomyInput = z.infer<typeof putSkillsTaxonomySchema>;
+export type SkillsQueryInput = z.infer<typeof skillsQuerySchema>;

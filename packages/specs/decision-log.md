@@ -34,3 +34,10 @@
 - Decision: Implement dashboard summary from available canonical data (`Candidate`) with deep links and role/completeness analytics, and defer skills/shared-profile charts to a later slice.
 - Why: Preserves UX intent for admin operational visibility while keeping deliverables incremental and runnable.
 - Follow-up: Add `skills` and `shared profiles` domain + API modules, then expand `/api/dashboard/summary` and dashboard UI sections.
+
+## 2026-03-05: Skills taxonomy persistence strategy
+
+- Conflict: Skills UI spec expects local tree editing and persistence via full taxonomy replace, while our existing API style commonly uses per-entity CRUD routes.
+- Decision: Implement `PUT /api/skills` as canonical full-state replace (taxonomy snapshot), plus query helpers (`GET /api/skills/query`) for table scopes.
+- Why: Matches spec behavior/UX and keeps future client-side optimistic editing straightforward.
+- Follow-up: Add audit history/versioning for taxonomy updates in a later slice.

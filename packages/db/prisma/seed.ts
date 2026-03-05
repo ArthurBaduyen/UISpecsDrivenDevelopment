@@ -165,6 +165,107 @@ async function main() {
       await prisma.project.create({ data: project });
     }
   }
+
+  const seedTaxonomy = [
+    {
+      name: 'Frontend',
+      slug: 'frontend',
+      description: 'Client-side web development skills',
+      displayOrder: 1,
+      skills: [
+        {
+          name: 'React',
+          code: 'react',
+          description: 'React ecosystem and component architecture',
+          displayOrder: 1,
+          capabilities: {
+            'Entry Level': ['Build basic components', 'Use props and state'],
+            'Mid Level': ['Design reusable UI modules', 'Manage async data flows'],
+            'Senior Level': ['Lead architecture decisions', 'Optimize performance'],
+            'Senior Lead Level': ['Define frontend standards', 'Mentor engineering teams']
+          }
+        },
+        {
+          name: 'TypeScript',
+          code: 'typescript',
+          description: 'Type-safe JavaScript development',
+          displayOrder: 2,
+          capabilities: {
+            'Entry Level': ['Use basic types', 'Annotate function signatures'],
+            'Mid Level': ['Model domain types', 'Use generics effectively'],
+            'Senior Level': ['Design shared type systems', 'Improve API contract safety'],
+            'Senior Lead Level': ['Establish monorepo typing conventions', 'Drive typing strategy']
+          }
+        }
+      ]
+    },
+    {
+      name: 'Backend',
+      slug: 'backend',
+      description: 'Server-side and data platform skills',
+      displayOrder: 2,
+      skills: [
+        {
+          name: 'Node.js',
+          code: 'nodejs',
+          description: 'Backend services using Node.js',
+          displayOrder: 1,
+          capabilities: {
+            'Entry Level': ['Create REST endpoints', 'Handle basic validation'],
+            'Mid Level': ['Structure services/modules', 'Implement robust error handling'],
+            'Senior Level': ['Design scalable backend systems', 'Tune service performance'],
+            'Senior Lead Level': ['Define platform architecture', 'Govern backend standards']
+          }
+        }
+      ]
+    }
+  ];
+
+  for (const categoryInput of seedTaxonomy) {
+    const category = await prisma.skillCategory.upsert({
+      where: { name: categoryInput.name },
+      update: {
+        slug: categoryInput.slug,
+        description: categoryInput.description,
+        displayOrder: categoryInput.displayOrder
+      },
+      create: {
+        name: categoryInput.name,
+        slug: categoryInput.slug,
+        description: categoryInput.description,
+        displayOrder: categoryInput.displayOrder
+      }
+    });
+
+    for (const skillInput of categoryInput.skills) {
+      const existingSkill = await prisma.skill.findFirst({
+        where: { categoryId: category.id, name: skillInput.name }
+      });
+
+      if (existingSkill) {
+        await prisma.skill.update({
+          where: { id: existingSkill.id },
+          data: {
+            code: skillInput.code,
+            description: skillInput.description,
+            capabilities: skillInput.capabilities,
+            displayOrder: skillInput.displayOrder
+          }
+        });
+      } else {
+        await prisma.skill.create({
+          data: {
+            categoryId: category.id,
+            name: skillInput.name,
+            code: skillInput.code,
+            description: skillInput.description,
+            capabilities: skillInput.capabilities,
+            displayOrder: skillInput.displayOrder
+          }
+        });
+      }
+    }
+  }
 }
 
 main()

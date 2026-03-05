@@ -90,6 +90,36 @@ model CandidateInviteLink {
   @@index([candidateId])
 }
 
+model SkillCategory {
+  id           String  @id @default(cuid())
+  name         String  @unique
+  slug         String?
+  description  String?
+  displayOrder Int     @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  skills       Skill[]
+
+  @@index([displayOrder])
+}
+
+model Skill {
+  id           String       @id @default(cuid())
+  categoryId   String
+  name         String
+  code         String?
+  description  String?
+  capabilities Json
+  displayOrder Int          @default(0)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  category     SkillCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, name])
+  @@index([categoryId])
+  @@index([displayOrder])
+}
+
 model Organization {
   id                   String       @id @default(cuid())
   name                 String

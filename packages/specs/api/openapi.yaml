@@ -68,6 +68,56 @@ components:
           type: integer
         totalPages:
           type: integer
+    SkillCapabilities:
+      type: object
+      required: ['Entry Level', 'Mid Level', 'Senior Level', 'Senior Lead Level']
+      properties:
+        Entry Level:
+          type: array
+          items: { type: string }
+        Mid Level:
+          type: array
+          items: { type: string }
+        Senior Level:
+          type: array
+          items: { type: string }
+        Senior Lead Level:
+          type: array
+          items: { type: string }
+    Skill:
+      type: object
+      required: [name, capabilities, displayOrder]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        code: { type: string, nullable: true }
+        description: { type: string, nullable: true }
+        displayOrder: { type: integer }
+        capabilities:
+          $ref: '#/components/schemas/SkillCapabilities'
+    SkillCategory:
+      type: object
+      required: [name, displayOrder, skills]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        slug: { type: string, nullable: true }
+        description: { type: string, nullable: true }
+        displayOrder: { type: integer }
+        skills:
+          type: array
+          items:
+            $ref: '#/components/schemas/Skill'
+    SkillsTaxonomy:
+      type: object
+      required: [categories]
+      properties:
+        taxonomyVersion: { type: string }
+        updatedAt: { type: string, format: date-time }
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/SkillCategory'
 paths:
   /health:
     get:
@@ -194,3 +244,57 @@ paths:
       responses:
         '201':
           description: invite token generated
+
+  /skills:
+    get:
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          description: full skills taxonomy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SkillsTaxonomy'
+    put:
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SkillsTaxonomy'
+      responses:
+        '200':
+          description: taxonomy persisted
+
+  /skills/query:
+    get:
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: scope
+          schema: { type: string, enum: [categories, skills] }
+        - in: query
+          name: categoryId
+          schema: { type: string }
+        - in: query
+          name: q
+          schema: { type: string }
+        - in: query
+          name: sortBy
+          schema: { type: string }
+        - in: query
+          name: sortDir
+          schema: { type: string, enum: [asc, desc] }
+        - in: query
+          name: page
+          schema: { type: integer, minimum: 1 }
+        - in: query
+          name: pageSize
+          schema: { type: integer, minimum: 1, maximum: 100 }
+      responses:
+        '200':
+          description: scoped taxonomy list

@@ -62,6 +62,37 @@ export type DashboardSummaryResponse = {
   }>;
 };
 
+export type SkillCapabilities = {
+  'Entry Level': string[];
+  'Mid Level': string[];
+  'Senior Level': string[];
+  'Senior Lead Level': string[];
+};
+
+export type SkillItem = {
+  id?: string;
+  name: string;
+  code?: string | null;
+  description?: string | null;
+  displayOrder: number;
+  capabilities: SkillCapabilities;
+};
+
+export type SkillCategoryItem = {
+  id?: string;
+  name: string;
+  slug?: string | null;
+  description?: string | null;
+  displayOrder: number;
+  skills: SkillItem[];
+};
+
+export type SkillsTaxonomyResponse = {
+  taxonomyVersion?: string;
+  updatedAt?: string;
+  categories: SkillCategoryItem[];
+};
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:4000';
 
 function getErrorMessage(payload: unknown, fallback: string): string {
