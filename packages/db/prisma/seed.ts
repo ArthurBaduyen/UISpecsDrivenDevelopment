@@ -65,8 +65,8 @@ async function main() {
     }
   });
 
-  const candidateA = await prisma.candidate.create({
-    data: {
+  const seedCandidates = [
+    {
       name: 'Jane Santos',
       role: 'Frontend Developer',
       technologies: 'React, TypeScript',
@@ -75,55 +75,96 @@ async function main() {
       status: CandidateStatus.Active,
       email: 'jane.santos@example.com',
       phone: '+639171234567'
+    },
+    {
+      name: 'Mark Dela Cruz',
+      role: 'QA Engineer',
+      technologies: 'Playwright, Cypress',
+      expectedSalary: '$3,200/mo',
+      available: 'Immediate',
+      status: CandidateStatus.Pending,
+      email: 'mark.delacruz@example.com'
+    },
+    {
+      name: 'Rina Gomez',
+      role: 'Backend Developer',
+      technologies: 'Node.js, PostgreSQL',
+      expectedSalary: '$4,500/mo',
+      available: '1 month',
+      status: CandidateStatus.Inactive,
+      email: 'rina.gomez@example.com'
     }
-  });
+  ];
 
-  await prisma.candidate.createMany({
-    data: [
-      {
-        name: 'Mark Dela Cruz',
-        role: 'QA Engineer',
-        technologies: 'Playwright, Cypress',
-        expectedSalary: '$3,200/mo',
-        available: 'Immediate',
-        status: CandidateStatus.Pending,
-        email: 'mark.delacruz@example.com'
-      },
-      {
-        name: 'Rina Gomez',
-        role: 'Backend Developer',
-        technologies: 'Node.js, PostgreSQL',
-        expectedSalary: '$4,500/mo',
-        available: '1 month',
-        status: CandidateStatus.Inactive,
-        email: 'rina.gomez@example.com'
-      }
-    ]
-  });
+  for (const candidate of seedCandidates) {
+    const existing = await prisma.candidate.findFirst({
+      where: { email: candidate.email }
+    });
 
-  await prisma.candidateInviteLink.create({
-    data: {
-      candidateId: candidateA.id,
-      tokenHash: 'seed_invite_token_jane',
-      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 14)
+    if (existing) {
+      await prisma.candidate.update({
+        where: { id: existing.id },
+        data: candidate
+      });
+    } else {
+      await prisma.candidate.create({ data: candidate });
     }
+  }
+
+  const candidateA = await prisma.candidate.findFirstOrThrow({
+    where: { email: 'jane.santos@example.com' }
   });
 
-  await prisma.project.createMany({
-    data: [
-      {
-        organizationId: org.id,
-        name: 'Launch dashboard',
-        description: 'Build initial dashboard widgets'
-      },
-      {
-        organizationId: org.id,
-        name: 'Setup billing',
-        description: 'Wire Stripe webhook processing'
-      }
-    ],
-    skipDuplicates: true
+  const existingInvite = await prisma.candidateInviteLink.findUnique({
+    where: { tokenHash: 'seed_invite_token_jane' }
   });
+
+  if (existingInvite) {
+    await prisma.candidateInviteLink.update({
+      where: { id: existingInvite.id },
+      data: {
+        candidateId: candidateA.id,
+        expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 14),
+        revokedAt: null
+      }
+    });
+  } else {
+    await prisma.candidateInviteLink.create({
+      data: {
+        candidateId: candidateA.id,
+        tokenHash: 'seed_invite_token_jane',
+        expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 14)
+      }
+    });
+  }
+
+  const seedProjects = [
+    {
+      organizationId: org.id,
+      name: 'Launch dashboard',
+      description: 'Build initial dashboard widgets'
+    },
+    {
+      organizationId: org.id,
+      name: 'Setup billing',
+      description: 'Wire Stripe webhook processing'
+    }
+  ];
+
+  for (const project of seedProjects) {
+    const existing = await prisma.project.findFirst({
+      where: { organizationId: org.id, name: project.name }
+    });
+
+    if (existing) {
+      await prisma.project.update({
+        where: { id: existing.id },
+        data: { description: project.description }
+      });
+    } else {
+      await prisma.project.create({ data: project });
+    }
+  }
 }
 
 main()
